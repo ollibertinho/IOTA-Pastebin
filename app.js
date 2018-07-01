@@ -8,8 +8,14 @@ var subdomain = require('express-subdomain');
 var http = require('http');
 var https = require('https');
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var pastebinRouter = require('./routes/pastebin');
 var ioServer = require('socket.io');
+var rewrite = require("express-urlrewrite");
+var IOTA = require('iota.lib.js');
+
+//var iota = new IOTA({ provider: 'http://localhost:14265' })
+var iota = new IOTA({ provider: 'https://field.carriota.com:443' });
+
 var app = express();
 
 var port = 8082;
@@ -28,7 +34,7 @@ var httpsServer = https.createServer(options, app);
 var io = new ioServer();
 io.attach(httpServer);
 io.attach(httpsServer);
-//console.log("IOOOOO",io);
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
@@ -39,16 +45,18 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(subdomain('pastebin', indexRouter));
-app.use(subdomain('pastebin', usersRouter));
+app.use(subdomain('pastebin', pastebinRouter));
 
 // Make our server accessible to our router
 app.use(function(req,res,next){
+  req.iota = iota;
   req.io = io;
   next();
 });
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/pastebin', pastebinRouter);
+//app.use(rewrite("", '/pastebin?id=$1'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

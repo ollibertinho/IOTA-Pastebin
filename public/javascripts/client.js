@@ -24,7 +24,8 @@ $(document).ready(function() {
     });
 
     $('#btnCreatePastebin').click(function(){
-
+        $('.modal').modal('show');
+        
         var port = location.protocol === 'https:' ? 8444 : 8082;
         // var connString = location.protocol+"//pastebin.tangle.army";
         var connString = location.protocol+"//127.0.0.1:8082";         
@@ -53,10 +54,10 @@ $(document).ready(function() {
         
         socket.on('created', function(msg)
         {
-            console.log(msg);
+            console.log("CREATED",msg);
             try 
             {
-                    
+                $('.modal').modal('hide');
             } catch(e) {
                 console.log(e);
                 //showHint('error', "ERROR", e.message);

@@ -2,6 +2,11 @@ extends layout.pug
 
 block content
     .maincontent
+      .modal.fade.bd-example-modal-lg(data-backdrop="static" data-keyboard="false" tabindex="-1")
+        .modal-dialog.modal-sm.text-center
+          .modal-content.text-center(style="width: 250px" align="center")
+            div#loader.loader(style="margin-left:105px")
+            |Please wait while we push your pastebin to the tangle...
       .container
         .row.text-center
           .col-md-12
