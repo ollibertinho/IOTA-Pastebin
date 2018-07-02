@@ -21,7 +21,6 @@ router.get('/', function(req, res, next) {
 					var fetchData = new SimpleMAM.MAMFetchData(iota, pastebinData.id);
 					
 					SimpleMAM.MAMLib.fetchMessages(fetchData, function(msg) {
-						console.log('exception:'+err);
 						io.to(socket.id).emit('retrieved', msg);
 					}).catch(err => {
 						console.log('exception:'+err);

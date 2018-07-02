@@ -57,7 +57,6 @@ app.use(function(req,res,next){
 
 app.use('/', indexRouter);
 app.use('/pastebin', pastebinRouter);
-//app.use(rewrite("", '/pastebin?id=$1'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

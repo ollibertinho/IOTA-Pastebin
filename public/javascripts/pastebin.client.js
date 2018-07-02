@@ -37,17 +37,19 @@ $(document).ready(function() {
 		$('#loader').hide();
 		try 
 		{
-			var source = msg.source;
-			var syntax = msg.syntax;
+			var jsonMsg = JSON.parse(msg);
+			var source = jsonMsg.source;
+			var syntax = jsonMsg.syntax;
+			var title = jsonMsg.title;
+
+			$('#pasteBinTitle').text(title);
 			$('#pasteBinSource').text(source);
 			if(syntax!=null) {
 				$('#pasteBinSource').addClass(syntax);
-			}			
-			$('#pasteBinSource').each(function(i, block) 
-			{
+			}
+			$('#pasteBinSource').each(function(i, block) {
 				hljs.highlightBlock(block);
-			});
-			
+			});			
 		} catch(e) {
 			console.log(e);
 			$('#loader').hide();

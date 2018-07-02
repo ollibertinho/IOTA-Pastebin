@@ -1,7 +1,7 @@
 $(document).ready(function() {	
 
     var isRestricted = false;
-    var syntaxType = null;
+    var syntax = null;
 
     $("#pwdSidekey").hide();
 
@@ -18,23 +18,22 @@ $(document).ready(function() {
     });
 
     $("[id^=sh_]").click(function(event) {
-      syntaxType = event.target.id;
-      console.log(syntaxType);
-      $("#btnSyntaxhighlightType").html($("#"+syntaxType).html());	  
+      syntax = event.target.id;
+      if(syntax!=null) {
+        syntax = syntax.substring(3);
+        console.log(syntax);
+        $("#btnSyntaxhighlightType").html($("#"+event.target.id).html());	  
+      }      
     });
 		
     $('#btnCreatePastebin').click(function(){
         $('.modal').modal('show');
-   
+        console.log(syntax);
         var source = $('#txtSoure').val();
-		var type = $("#btnRestrictionType").html();
-		if(type.trim()=="Syntaxhighlighting?") {
-			type = null;
-		}
+		    var type = $("#btnRestrictionType").html();
         var passwd =  $("#pwdSidekey").val();
-        var syntax =  $("#btnSyntaxhighlightType").html();
         var title =$('#txtTitle').val();
-        console.log('create bin', title, source, type, passwd, syntax);
+        console.log('create', title, source, type, passwd, syntax);
         clientSocket.emit('create', { "title":title, "source":source, "type":type, "passwd":passwd, "syntax":syntax });
     });
 	
