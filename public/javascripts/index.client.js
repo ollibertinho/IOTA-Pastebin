@@ -47,7 +47,7 @@ $(document).ready(function() {
 			window.location.replace(redirect);
 		} catch(e) {
 			console.log(e);
-			//showHint('error', "ERROR", e.message);
+			showHint('error', "ERROR", e.message);
 		}
 	});
 });

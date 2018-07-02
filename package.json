@@ -15,6 +15,7 @@
     "morgan": "~1.9.0",
     "pug": "2.0.0-beta11",
     "simplified-mam-lib": "git+https://github.com/ollibertinho/Simplified-MAM-Lib.git",
-    "socket.io": "^2.1.1"
+    "socket.io": "^2.1.1",
+    "toastr": "^2.1.4"
   }
 }
