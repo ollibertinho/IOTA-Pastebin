@@ -4,20 +4,40 @@ var SimpleMAM = require('simplified-mam-lib');
 
 router.get('/', function(req, res, next) {
 
-    //var root = "9HDASXULRQSZPGIPXXKFSQZCIVMA9XPLDBCWSBAQHUZDDNSPDANJZANOKIXLFUZIXGIDOMNHZBXUOGOSO";
-    var iota = req.iota;
-    var root = req.query.id;
-    var fetchData = new SimpleMAM.MAMFetchData(iota, root);
-    SimpleMAM.MAMLib.fetchMessages(fetchData, function(msg) {
-        res.render('pastebin', { source: 'HELLO DARKNESS MY OLD FRIEND', title: 'My first pastebin!', type: 'JSON'});
-        console.log("Message fetched... ", msg);
-    }).catch(err => {
-        res.render('pastebin', { source: err });//, title: 'My first pastebin!', type: 'JSON'});
-    });
+	var io = req.io;
+	var iota = req.iota;
 
-    //res.render('pastebin', { source: 'HELLO DARKNESS MY OLD FRIEND', title: 'My first pastebin!', type: 'JSON'});
-    //res.render('pastebin');
-    //res.send(req.query.id);
+	io.on('connection', function(socket)
+	{
+		try 
+		{
+			var iota = req.iota;
+			socket.on('retrieve', retrievePastebin);
+			
+			function retrievePastebin(pastebinData)
+			{		
+				console.log(pastebinData.id);
+				try 
+				{			
+					var fetchData = new SimpleMAM.MAMFetchData(iota, pastebinData.id);
+					SimpleMAM.MAMLib.fetchMessages(fetchData, function(msg) {
+						console.log('exception:'+err);
+						io.to(socket.id).emit('retrieved', msg);
+					}).catch(err => {
+						console.log('exception:'+err);
+						io.to(socket.id).emit('error', err.message);
+					});
+				} catch(e){
+				  console.log('exception:'+e);
+				  io.to(socket.id).emit('error', e.message);
+				}
+			}	
+		} catch(e) {
+		  console.log('exception:'+e);
+		  io.to(socket.id).emit('error', e.message);
+		}
+	})
+	res.render('pastebin');
 });
 
 module.exports = router;

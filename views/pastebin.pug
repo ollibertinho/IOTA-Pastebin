@@ -1,11 +1,18 @@
 extends layout.pug
 
+block scripts
+    script(src="iota.lib.js/dist/iota.min.js")
+    script(src="javascripts/pastebin.client.js")
+	
 block content
     .maincontent
+      #loader(align='center')
+        .loader
+        | Please wait while we fetch the pastebin from tangle...	
       .container
         .row.text-center
           .col-md-12
-            h2.mt-5= title        
+            h2#pasteBinTitle.mt-5     
         .row
           .col-md-12            
-              div#source.border= source
+              div#pasteBinSource.border

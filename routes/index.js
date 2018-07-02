@@ -26,8 +26,7 @@ router.get('/', function(req, res, next) {
         try {
           console.log('client disconnected:'+socket.id);
           socket.removeListener('create', createPastebin);
-          //countdeleteFromArray(clients, socket.id);
-        }catch(err) {
+        } catch(err) {
           console.log(err);
         }		
       });
@@ -43,13 +42,11 @@ router.get('/', function(req, res, next) {
             if (err) {
               console.log(err);
             } else {    
-              console.log(data);          
+               console.log(data);          
                io.to(socket.id).emit('created', data);	
             }
           });	           
-        }
-        catch(e) 
-        {
+        } catch(e){
           console.log('exception:'+e);
           io.to(socket.id).emit('error', e.message);
         }
