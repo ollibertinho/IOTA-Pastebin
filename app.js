@@ -13,8 +13,9 @@ var ioServer = require('socket.io');
 var rewrite = require("express-urlrewrite");
 var IOTA = require('iota.lib.js');
 
-//var iota = new IOTA({ provider: 'http://localhost:14265' })
-var iota = new IOTA({ provider: 'https://field.carriota.com:443' });
+var iota = new IOTA({ provider: 'http://localhost:14265' })	
+
+//var iota = new IOTA({ provider: 'https://field.carriota.com:443' });
 
 var app = express();
 
