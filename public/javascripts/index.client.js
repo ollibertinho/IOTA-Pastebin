@@ -20,7 +20,7 @@ $(document).ready(function() {
     $("[id^=sh_]").click(function(event) {
       syntaxType = event.target.id;
       console.log(syntaxType);
-      $("#syntaxhighlightType").html($("#"+syntaxType).html());	  
+      $("#btnSyntaxhighlightType").html($("#"+syntaxType).html());	  
     });
 		
     $('#btnCreatePastebin').click(function(){
@@ -32,7 +32,7 @@ $(document).ready(function() {
 			type = null;
 		}
         var passwd =  $("#pwdSidekey").val();
-        var syntax =  $("#syntaxhighlightType").html();
+        var syntax =  $("#btnSyntaxhighlightType").html();
         var title =$('#txtTitle').val();
         console.log('create bin', title, source, type, passwd, syntax);
         clientSocket.emit('create', { "title":title, "source":source, "type":type, "passwd":passwd, "syntax":syntax });
@@ -48,7 +48,7 @@ $(document).ready(function() {
 			window.location.replace(redirect);
 		} catch(e) {
 			console.log(e);
-			//showHint('error', "ERROR", e.message);			
+			//showHint('error', "ERROR", e.message);
 		}
 	});
 });

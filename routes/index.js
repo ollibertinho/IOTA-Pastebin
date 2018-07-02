@@ -43,7 +43,7 @@ router.get('/', function(req, res, next) {
               console.log(err);
             } else {    
                console.log(data);          
-               io.to(socket.id).emit('created', data);	
+               io.to(socket.id).emit('created', data);
             }
           });	           
         } catch(e){

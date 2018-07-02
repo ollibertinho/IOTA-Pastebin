@@ -6,7 +6,6 @@ router.get('/', function(req, res, next) {
 
 	var io = req.io;
 	var iota = req.iota;
-
 	io.on('connection', function(socket)
 	{
 		try 
@@ -20,6 +19,7 @@ router.get('/', function(req, res, next) {
 				try 
 				{			
 					var fetchData = new SimpleMAM.MAMFetchData(iota, pastebinData.id);
+					
 					SimpleMAM.MAMLib.fetchMessages(fetchData, function(msg) {
 						console.log('exception:'+err);
 						io.to(socket.id).emit('retrieved', msg);
@@ -27,6 +27,10 @@ router.get('/', function(req, res, next) {
 						console.log('exception:'+err);
 						io.to(socket.id).emit('error', err.message);
 					});
+					
+					//MOCK
+					//var retVal = { "source":"<html>\r\n<body class=\"test\">Plain text can include <strong>html</strong>\r\n<br/></body></html>", "syntax":"html" };
+					//io.to(socket.id).emit('retrieved', retVal);
 				} catch(e){
 				  console.log('exception:'+e);
 				  io.to(socket.id).emit('error', e.message);

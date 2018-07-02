@@ -3,16 +3,25 @@ extends layout.pug
 block scripts
     script(src="iota.lib.js/dist/iota.min.js")
     script(src="javascripts/pastebin.client.js")
-	
+    link(rel="stylesheet" href="/highlighter/styles/default.css")
+    script(src="/highlighter/highlight.pack.js")
+    script.
+      $(document).ready(function() {
+         //hljs.initHighlightingOnLoad()
+         //$("#pasteBinSource").html("#{'Plain text can include <strong>html</strong>\\r\\n<br/>'}")
+      });
+
+
 block content
     .maincontent
       #loader(align='center')
         .loader
-        | Please wait while we fetch the pastebin from tangle...	
+        | Please wait while we fetch the pastebin from tangle...
       .container
         .row.text-center
           .col-md-12
             h2#pasteBinTitle.mt-5     
         .row
-          .col-md-12            
-              div#pasteBinSource.border
+          .col-md-12
+              pre
+                code#pasteBinSource

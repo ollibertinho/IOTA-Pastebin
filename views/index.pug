@@ -9,7 +9,7 @@ block content
         .modal-dialog.modal-sm.text-center
           .modal-content.text-center(style="width: 250px" align="center")
             div#loader.loader(style="margin-left:105px")
-            |Please wait while we push your pastebin to the tangle...	        
+            |Please wait while we push your pastebin to the tangle...
       .container
         .row.text-center
           .col-md-12
@@ -23,14 +23,14 @@ block content
           .col-md-12
             .input-group
               .input-group-prepend
-                button#restrictionType.btn.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false') Public
+                button#btnRestrictionType.btn.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false') Public
                 .dropdown-menu
                   a#setpublic.dropdown-item(href='#') Public
                   a#setrestricted.dropdown-item(href='#') Restricted
               input#txtTitle.form-control(placeholder='Name, title, ...', type='text')
               input#pwdSidekey.form-control(placeholder='Password...', type='password')
               .input-group-append
-                button#syntaxhighlightType.btn.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false') Syntaxhighlighting?
+                button#btnSyntaxhighlightType.btn.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false') Syntaxhighlighting?
                 .dropdown-menu
                   a#sh_bash.dropdown-item(href='#') BASH
                   a#sh_c.dropdown-item(href='#') C

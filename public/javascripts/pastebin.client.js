@@ -37,8 +37,17 @@ $(document).ready(function() {
 		$('#loader').hide();
 		try 
 		{
-			$('#pasteBinSource').html(msg);
-			//$('.modal').modal('hide');
+			var source = msg.source;
+			var syntax = msg.syntax;
+			$('#pasteBinSource').text(source);
+			if(syntax!=null) {
+				$('#pasteBinSource').addClass(syntax);
+			}			
+			$('#pasteBinSource').each(function(i, block) 
+			{
+				hljs.highlightBlock(block);
+			});
+			
 		} catch(e) {
 			console.log(e);
 			$('#loader').hide();
