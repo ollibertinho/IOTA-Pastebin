@@ -10,11 +10,12 @@ var https = require('https');
 var indexRouter = require('./routes/index');
 var pastebinRouter = require('./routes/pastebin');
 var ioServer = require('socket.io');
-var rewrite = require("express-urlrewrite");
 var IOTA = require('iota.lib.js');
+var monk = require('monk');
+var db = monk('localhost:27017/pastebin-url-shortener');
 
-var iota = new IOTA({ provider: 'http://localhost:14265' })	
-//var iota = new IOTA({ provider: 'https://field.carriota.com:443' });
+//var iota = new IOTA({ provider: 'http://localhost:14265' })	
+var iota = new IOTA({ provider: 'https://field.carriota.com:443' });
 
 var app = express();
 
@@ -33,14 +34,15 @@ var httpsServer = https.createServer(options, app);
 
 // Make our server accessible to our router
 app.use(function(req,res,next){
-    console.log("MIDDLEWARE");
     req.iota = iota;
     req.io = io;
+    req.db = db;
     next();
 });
 
+app.use('/', pastebinRouter);
 app.use('/', indexRouter);
-app.use('/pastebin', pastebinRouter);
+app.use('/pb', pastebinRouter);
 
 var io = new ioServer();
 io.attach(httpServer);
@@ -55,6 +57,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'pb/public')));
 app.use(express.static(path.join(__dirname, 'node_modules')));
 app.use(subdomain('pastebin', indexRouter));
 app.use(subdomain('pastebin', pastebinRouter));

@@ -1,4 +1,6 @@
 var express = require('express');
+var shortid = require("shortid");
+
 var router = express.Router();
 var SimpleMAM = require('simplified-mam-lib');
 
@@ -14,10 +16,9 @@ function createSeed(){
 
 router.get('/', function(req, res, next) {
 
-  console.log("###IO",req.io);
-  console.log("###IOTA",req.iota);
   var io = req.io;
   var iota = req.iota;
+  var db = req.db;
 
   io.on('connection', function(socket)
   {
@@ -44,8 +45,10 @@ router.get('/', function(req, res, next) {
           mam.publishMessage(JSON.stringify(pastebinData), function(err, data) {
             if (err) {
               console.log(err);
+              io.to(socket.id).emit('error', err.message);
             } else {    
-               console.log(data);          
+               console.log(data);
+               data.shortid = shortenUrl(data.root);
                io.to(socket.id).emit('created', data);
             }
           });	           
@@ -53,6 +56,21 @@ router.get('/', function(req, res, next) {
           console.log('exception:'+e);
           io.to(socket.id).emit('error', e.message);
         }
+      }
+
+      function shortenUrl(id) {
+        const urlCode = shortid.generate();
+        var doc = { "shortid":urlCode, "address":id };
+        console.log("SHORTEN", doc);
+        db.collection('addresses').insert(doc, function (err, result) {
+          if (err) {
+            io.to(socket.id).emit('error','Failed to create short-url.');
+            console.log(err);
+          } else {
+            console.log('INSERTED', doc);
+          }
+        });   
+        return urlCode;   
       }
     }
     catch(e) 

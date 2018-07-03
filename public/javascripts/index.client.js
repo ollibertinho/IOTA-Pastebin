@@ -43,7 +43,7 @@ $(document).ready(function() {
 		try 
 		{
 			$('.modal').modal('hide');
-			var redirect ="/pastebin?id=" + msg.root;
+			var redirect ="/pb_" + msg.shortid;
 			window.location.replace(redirect);
 		} catch(e) {
 			console.log(e);
