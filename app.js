@@ -14,7 +14,6 @@ var rewrite = require("express-urlrewrite");
 var IOTA = require('iota.lib.js');
 
 var iota = new IOTA({ provider: 'http://localhost:14265' })	
-
 //var iota = new IOTA({ provider: 'https://field.carriota.com:443' });
 
 var app = express();
@@ -32,6 +31,17 @@ const options = {
 var httpServer = http.createServer(app);
 var httpsServer = https.createServer(options, app);
 
+// Make our server accessible to our router
+app.use(function(req,res,next){
+    console.log("MIDDLEWARE");
+    req.iota = iota;
+    req.io = io;
+    next();
+});
+
+app.use('/', indexRouter);
+app.use('/pastebin', pastebinRouter);
+
 var io = new ioServer();
 io.attach(httpServer);
 io.attach(httpsServer);
@@ -48,16 +58,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'node_modules')));
 app.use(subdomain('pastebin', indexRouter));
 app.use(subdomain('pastebin', pastebinRouter));
-
-// Make our server accessible to our router
-app.use(function(req,res,next){
-  req.iota = iota;
-  req.io = io;
-  next();
-});
-
-app.use('/', indexRouter);
-app.use('/pastebin', pastebinRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
