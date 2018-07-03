@@ -13,6 +13,9 @@ function createSeed(){
 }
 
 router.get('/', function(req, res, next) {
+
+  console.log("###IO",req.io);
+  console.log("###IOTA",req.iota);
   var io = req.io;
   var iota = req.iota;
 
