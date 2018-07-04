@@ -1,38 +1,5 @@
 $(document).ready(function() {	
 
-	//$('#loader').hide();
-	
-	/*function getUrlParameter(sParam) {
-		var sPageURL = decodeURIComponent(window.location.search.substring(1)),
-			sURLVariables = sPageURL.split('&'),
-			sParameterName,
-			i;
-
-		for (i = 0; i < sURLVariables.length; i++) {
-			sParameterName = sURLVariables[i].split('=');
-			if (sParameterName[0] === sParam) {
-				return sParameterName[1] === undefined ? true : sParameterName[1];
-			}
-		}
-	};*/
-		
-	/*if(getUrlParameter("id") != null) 
-	{
-		var iota = new IOTA();
-		var id = getUrlParameter("id");
-		if(iota.valid.isAddress(id) == false)
-		{
-			console.log("Cannot retrieve pastebin. Invalid pastebin-address.");
-			showHint('error', "ERROR", "Cannot retrieve pastebin. Invalid pastebin-id.");
-			return;
-		}
-		$('#loader').show();
-		clientSocket.emit('retrieve', { "id":id });
-	}*/
-
-	$('#loader').show();
-	clientSocket.emit('retrieve', { });
-
 	$('#pasteBinUrl').click(function()
 	{
 	   copyToClipboard($('#pasteBinUrl'));
@@ -84,4 +51,8 @@ $(document).ready(function() {
 			showHint('error', "ERROR", e.message);		
 		}
 	});	
+	
+	$('#loader').show();
+	console.log("retrieve...");
+	clientSocket.emit('retrieve', { });
 });

@@ -42,9 +42,11 @@ $(document).ready(function() {
 		console.log("CREATED",msg);
 		try 
 		{
-			$('.modal').modal('hide');
-			var redirect ="/pb_" + msg.shortid;
-			window.location.replace(redirect);
+			//$('.modal').modal('hide');
+			$('modal-content').html("/pb_" + msg.shortid);
+			
+			//var redirect ="/pb_" + msg.shortid;
+			//window.location.replace(redirect);
 		} catch(e) {
 			console.log(e);
 			showHint('error', "ERROR", e.message);
