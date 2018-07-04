@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var SimpleMAM = require('simplified-mam-lib');
 
-function fetchPastebin(address) {
+function fetchPastebin(address, io) {
 	try 
 	{			
 		var fetchData = new SimpleMAM.MAMFetchData(iota, address);		
@@ -38,7 +38,7 @@ router.get('/pb_:id', function(req, res, next) {
 				db.collection('addresses').findOne({shortid: id}, 'address').then((doc) => {					
 					console.log("DOC", doc);										
 					if(address != null) {
-						fetchPastebin(doc.address);
+						fetchPastebin(doc.address, io);
 					}
 				});
 			}
@@ -70,7 +70,7 @@ router.get('/pb', function(req, res, next) {
 					io.to(socket.id).emit('retrieveNotPossible', 'No pastebin-id provided.');
 					return;				
 				}			
-				fetchPastebin(address);
+				fetchPastebin(address, io);
 			}	
 		} catch(e) {
 		  console.log('exception:'+e);
