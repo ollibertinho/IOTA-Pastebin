@@ -23,8 +23,8 @@ var port = 8082;
 var portSSL = 8444;
 
 const options = {
-  //key: fs.readFileSync("../certs/mam.iotamixer.io/privkey.pem"),
-  //cert: fs.readFileSync("../certs/mam.iotamixer.io/fullchain.pem"),
+  key: fs.readFileSync("../certs/tangle.army/privkey.pem"),
+  cert: fs.readFileSync("../certs/tangle.army/fullchain.pem"),
   requestCert: false,
   rejectUnauthorized: false
 };
