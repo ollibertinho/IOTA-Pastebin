@@ -18,8 +18,8 @@ block content
         .row
           .col-md-12
             .input-group
-              textarea#txtSoure.form-control(rows='15')
-        .row.pt-2
+              textarea#txtSoure.form-control(rows='15' maxlength='5000')
+        .row.pt-2.pb-5
           .col-md-12
             .input-group
               .input-group-prepend
@@ -47,3 +47,7 @@ block content
                   a#sh_default.dropdown-item(href='#') Default
               .input-group-append
                 button#btnCreatePastebin.btn.btn-primary(type='button', data-toggle='tt_send', title='Create new paste.') Create Paste
+        
+
+
+

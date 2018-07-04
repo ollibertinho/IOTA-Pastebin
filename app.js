@@ -12,7 +12,7 @@ var pastebinRouter = require('./routes/pastebin');
 var ioServer = require('socket.io');
 var IOTA = require('iota.lib.js');
 var monk = require('monk');
-var db = monk('localhost:27017/pastebin-url-shortener');
+var db = monk('localhost:27017/pastebin');
 
 var iota = new IOTA({ provider: 'http://localhost:14265' })	
 //var iota = new IOTA({ provider: 'https://field.carriota.com:443' });
