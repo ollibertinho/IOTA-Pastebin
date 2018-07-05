@@ -30,17 +30,19 @@ $(document).ready(function() {
 		
 		clientSocket.on('error', function(exception){
 			showHint("error", "ERROR", 'Exception:' + exception);
+			$('.modal').modal('hide');
 			console.log('exception: ' + exception);
     	});
 	
 		clientSocket.on('disconnect', function(){
 			console.log('disconnected');
+			$('.modal').modal('hide');
 			showHint("info", "INFO", "Disconnected...");
 		});	
 
 	} catch(e) {
 		console.log("SOCKET ERROR",e);
-		$('.modal').modal('show');
+		$('.modal').modal('hide');
 		showHint('error', "ERROR", e);
 	}
 
