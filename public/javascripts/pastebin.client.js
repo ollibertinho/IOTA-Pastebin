@@ -1,5 +1,13 @@
 $(document).ready(function() {	
 
+	function copyToClipboard(element) {
+		var $temp = $("<input>");
+		$("body").append($temp);
+		$temp.val($(element).text()).select();
+		document.execCommand("copy");
+		$temp.remove();
+	}
+
 	$('#pasteBinUrl').click(function()
 	{
 	   copyToClipboard($('#pasteBinUrl'));
@@ -8,8 +16,8 @@ $(document).ready(function() {
 
 	$('#pasteBinShortenedUrl').click(function()
 	{
-	   copyToClipboard($('#pasteBinShortenedUrl'));
-	   showHint("success", "Url copied to clipboard", $('#pasteBinShortenedUrl').html());
+		copyToClipboard($('#pasteBinShortenedUrl'));
+		showHint("success", "Url copied to clipboard", $('#pasteBinShortenedUrl').html());
 	});
 
 	clientSocket.on('retrieveNotPossible', function(msg)
@@ -23,6 +31,7 @@ $(document).ready(function() {
 	clientSocket.on('retrieved', function(msg)
 	{
 		console.log("retrieved",msg);
+		$('#bincontainer').show();
 		$('#loader').hide();
 		try 
 		{
@@ -34,9 +43,10 @@ $(document).ready(function() {
 
 			$('#pasteBinTitle').text(title);
 			$('#pasteBinSource').text(source);
-			$('#pasteBinUrl').text('http://pastebin.tangle.army/pb?id='+id);
+			$('#pasteBinUrl').text('http://paste.tangle.army/p?id='+id);
+			$('#pasteBinRoot').html(id + "&nbsp;(<a href ='https://mam.tangle.army/fetch?address="+id+"' target='_blank'>Show in explorer</a>)");
 			if(genId!=null) {
-				$('#pasteBinShortenedUrl').text('http://pastebin.tangle.army/id_'+genId);
+				$('#pasteBinShortenedUrl').text('http://paste.tangle.army/p_'+genId);
 			}
 			
 			if(syntax!=null) {
@@ -45,6 +55,7 @@ $(document).ready(function() {
 			$('#pasteBinSource').each(function(i, block) {
 				hljs.highlightBlock(block);
 			});			
+
 		} catch(e) {
 			console.log(e);
 			$('#loader').hide();
@@ -53,6 +64,7 @@ $(document).ready(function() {
 	});	
 	
 	$('#loader').show();
+	$('#bincontainer').hide();
 	console.log("retrieve...");
 	clientSocket.emit('retrieve', { });
 });

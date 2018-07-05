@@ -35,10 +35,10 @@ body {
   }
 
 textarea {
-    background-color: #f5f5f5;
-    font-size: 1em;
+    background-color: #f5f5f5e7;
+    font-size: 14px;
     font-family: 'Courier New', Courier, monospace, Arial, Helvetica, sans-serif;
-    border: 1px solid ccc;
+    border: 5px solid ccc;
    }
 
 .wrapword{

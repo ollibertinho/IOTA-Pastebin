@@ -1,6 +1,48 @@
 var clientSocket;
 
+function copyToClipboard(element) 
+{
+	var $temp = $("<input>");
+	$("body").append($temp);
+	$temp.val($(element).text()).select();
+	document.execCommand("copy");
+	$temp.remove();
+}
+
+function showHint(type, title, text) 
+{
+	console.log(text);
+	toastr[type](text, title);
+}
+
 $(document).ready(function() {	
+	
+	try {
+		var port = location.protocol === 'https:' ? 8444 : 8082;
+		var connString = location.protocol+"//pastebin.tangle.army";
+		//var connString = location.protocol+"//127.0.0.1:8082"; 
+		
+		clientSocket = io.connect(connString);  
+		clientSocket.on('connect', function() { 
+			console.log('connected');
+			showHint("success", "INFO", "Successfully connected...");		
+		});
+		
+		clientSocket.on('error', function(exception){
+			showHint("error", "ERROR", 'Exception:' + exception);
+			console.log('exception: ' + exception);
+    	});
+	
+		clientSocket.on('disconnect', function(){
+			console.log('disconnected');
+			showHint("info", "INFO", "Disconnected...");
+		});	
+
+	} catch(e) {
+		console.log("SOCKET ERROR",e);
+		$('.modal').modal('show');
+		showHint('error', "ERROR", e);
+	}
 
 	toastr.options = {
 		"closeButton": true,
@@ -19,54 +61,11 @@ $(document).ready(function() {
 		"showMethod": "fadeIn",
 		"hideMethod": "fadeOut"
 	}
-
-	try {
-		var port = location.protocol === 'https:' ? 8444 : 8082;
-		var connString = location.protocol+"//pastebin.tangle.army";
-		//var connString = location.protocol+"//127.0.0.1:8082"; 
-		clientSocket = io.connect(connString);  
-		clientSocket.on('connect', function() { 
-			console.log('connected');
-			//getCurrentlyConnected();
-			showHint("success", "INFO", "Successfully connected...");
-			//var addr = getUrlParameter('address');
-			//if(addr!=null) {
-			//	doFetch(addr, '');
-			//}
-		});
 		
-		clientSocket.on('error', function(exception){
-			showHint("error", "ERROR", 'Exception:' + exception);
-			console.log('exception: ' + exception);
-    	});
-	
-		clientSocket.on('disconnect', function(){
-			console.log('disconnected');
-			showHint("info", "INFO", "Disconnected...");
-		});	
-
-	} catch(e) {
-		console.log("SOCKET ERROR",e);
-		showHint('error', "ERROR", e);
-	}
-	
-	function copyToClipboard(element) {
-		var $temp = $("<input>");
-		$("body").append($temp);
-		$temp.val($(element).text()).select();
-		document.execCommand("copy");
-		$temp.remove();
-	  }
-
 	$('#donationAddress').click(function()
 	{
 	   copyToClipboard($('#donationAddress'));
 	   showHint("success", "Address copied to clipboard", $('#donationAddress').html());
 	});
 
-	function showHint(type, title, text) 
-	{
-		console.log(text);
-		toastr[type](text, title);
-	}
 });

@@ -7,8 +7,6 @@ var fs = require('fs');
 var subdomain = require('express-subdomain');
 var http = require('http');
 var https = require('https');
-var indexRouter = require('./routes/index');
-var pastebinRouter = require('./routes/pastebin');
 var ioServer = require('socket.io');
 var IOTA = require('iota.lib.js');
 var monk = require('monk');
@@ -40,13 +38,15 @@ app.use(function(req,res,next){
     next();
 });
 
-app.use('/', pastebinRouter);
-app.use('/', indexRouter);
-app.use('/pb', pastebinRouter);
-
 var io = new ioServer();
 io.attach(httpServer);
 io.attach(httpsServer);
+
+var indexRouter = require('./routes/index')(io, iota, db);
+var pastebinRouter = require('./routes/pastebin')(io, iota, db);
+
+app.use('/', indexRouter);
+app.use('/', pastebinRouter);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -59,8 +59,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'pb/public')));
 app.use(express.static(path.join(__dirname, 'node_modules')));
-app.use(subdomain('pastebin', indexRouter));
-app.use(subdomain('pastebin', pastebinRouter));
+app.use(subdomain('paste', indexRouter));
+app.use(subdomain('paste', pastebinRouter));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -11,7 +11,7 @@ block content
       #loader.mt-5(align='center')
         .loader
         | Please wait while we fetch the pastebin from tangle...
-      .container
+      #bincontainer.container
         .row.text-center
           .col-md-12
             h2#pasteBinTitle.mt-5
@@ -22,11 +22,14 @@ block content
         .row
           .col-md-12.box
             .bg-light.border.rounded.fix-height-165.inner-box.wrapword
-              h5.text-center Original-URL with your root-address
-              span#pasteBinUrl.copy
-        .row
+              h5.text-center Root address
+              span#pasteBinRoot              
+        .row.pb-5
          .col-md-12.box
             .bg-light.border.rounded.fix-height-165.inner-box.wrapword
-              h5.text-center Shortened-URL
+              h5.text-center URLs (click top copy)
               span#pasteBinShortenedUrl.copy
-            
+              span &nbsp;(short url)
+              br
+              span#pasteBinUrl.copy
+              span &nbsp;(root url)

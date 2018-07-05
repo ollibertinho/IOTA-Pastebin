@@ -14,21 +14,23 @@ function createSeed(){
   return seed;
 }
 
-router.get('/', function(req, res, next) {
+var indexRouter = function(io, iota, db) {
 
-  var io = req.io;
-  var iota = req.iota;
-  var db = req.db;
+  router.get('/', function(req, res, next) {
+    res.render('index');
+  });
 
   io.on('connection', function(socket)
   {
     try 
     {
+      console.log('client connected:' + socket.id);
+
       socket.on('create', createPastebin);
-      
+    
       socket.on('disconnect', function(){		
         try {
-          console.log('client disconnected:'+socket.id);
+          console.log('client disconnected:' + socket.id);
           socket.removeListener('create', createPastebin);
         } catch(err) {
           console.log(err);
@@ -37,23 +39,23 @@ router.get('/', function(req, res, next) {
       
       function createPastebin(pastebinData)
       {		
-        console.log(pastebinData);
+        console.log("Create Pastebin serverside...");
         try 
         {			
           var seed = createSeed();
           var mam = new SimpleMAM.MAMLib(iota, seed, true);
           mam.publishMessage(JSON.stringify(pastebinData), function(err, data) {
             if (err) {
-              console.log(err);
+              console.log("ERROR Publishing", err);
               io.to(socket.id).emit('error', err.message);
             } else {    
-               console.log(data);
-               data.shortid = shortenUrl(data.root);
-               io.to(socket.id).emit('created', data);
+                console.log("### Publishing OK!");
+                data.shortid = shortenUrl(data.root);
+                io.to(socket.id).emit('created', data);
             }
           });	           
         } catch(e){
-          console.log('exception:'+e);
+          console.log('function createPastebin(pastebinData) exception:'+e);
           io.to(socket.id).emit('error', e.message);
         }
       }
@@ -79,7 +81,8 @@ router.get('/', function(req, res, next) {
       io.to(socket.id).emit('error', e.message);
     }
   })
-  res.render('index');
-});
 
-module.exports = router;
+  return router;
+}
+
+module.exports = indexRouter;

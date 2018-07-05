@@ -2,97 +2,105 @@ var express = require('express');
 var router = express.Router();
 var SimpleMAM = require('simplified-mam-lib');
 
-function fetchPastebin(address, io, iota, socketId) {
+function fetchPastebin(address, io, iota, socketId, shortId) {
 	try 
-	{			
+	{
 		var fetchData = new SimpleMAM.MAMFetchData(iota, address);		
 		SimpleMAM.MAMLib.fetchMessages(fetchData, function(msg) {
 		    try {
-    			var jsonObj = JSON.parse(msg);
-    			jsonObj.address = address;
+				var jsonObj = JSON.parse(msg);
+				jsonObj.shortid = shortId;
+				jsonObj.address = address;
+				console.log("RETRIEVED", jsonObj);
     			io.to(socketId).emit('retrieved', jsonObj);
 		    } catch(e) {
         	  console.log('exception:'+e);
-        	  io.to(socketId).emit('error', e);
+        	  io.to(socketId).emit('retrieveNotPossible', e);
         	}
 		}).catch(err => {
 			console.log('exception:'+err);
-			io.to(socketId).emit('error', err.message);
+			io.to(socketId).emit('retrieveNotPossible', err.message);
 		});		
 	} catch(e){
 	  console.log('exception:'+e);
-	  io.to(socketId).emit('error', e);
+	  io.to(socketId).emit('retrieveNotPossible', e);
 	}	
 }
 
-router.get('/pb_:id', function(req, res, next) {
-	
-	var iota = req.iota;
-	var io = req.io;
-	var db = req.db;
-	var id = req.params.id;
+var pbRouter = function(io, iota, db) {
+	var shortId = null;
+	var address = null;
 
-	console.log("io", io);
-	console.log("PARAMS",req.params);
-
-	io.on('connection', function(socket)
-	{
-	    socket.on('retrieve', retrievePastebin);
-	    function retrievePastebin(pastebinData)
-		{
-		    console.log("Retrieving on serverside...",req.params);
-    		try 
-    		{	
-    			if(id == null) {
-    			    console.log("Retrieve not possible. No pastebin-id provided.");
-    				io.to(socket.id).emit('retrieveNotPossible', 'No pastebin-id provided.');
-    			} else {
-    				console.log("find long Id of", id);
-    				db.collection('addresses').findOne({shortid: id}, 'address').then((doc) => {					
-    					//console.log("DOC", doc);										
-    					if(doc.address != null) {
-    					    console.log("start fetching", doc.address);
-    						fetchPastebin(doc.address, io, iota, socket);
-    					}
-    				});
-    			}
-    		} catch(e) {
-    			console.log('exception:'+e);
-    			io.to(socket.id).emit('error', e);		  
-    		}
-		}
+	router.get('/p_:id', function(req, res, next) {		
+		shortId = req.params.id;
+		console.log("get short id...", shortId);
+		res.render('pastebin');
 	});
-	res.render('pastebin');
-});
 
+	
+	router.get('/p', function(req, res, next) {
+		address = req.query.id;
+		console.log("get address...", address);
+		res.render('pastebin');
+	});
 
-router.get('/pb', function(req, res, next) {
-
-	var io = req.io;
-	var iota = req.iota;
-	var address = req.query.id;
-	var db = req.db;
-    
 	io.on('connection', function(socket)
 	{
-		try 
-		{
-			socket.on('retrieve', retrievePastebin);
-			
-			function retrievePastebin(pastebinData)
-			{		
-				if(address == null) {
-					io.to(socket.id).emit('retrieveNotPossible', 'No pastebin-id provided.');
-					return;				
-				}			
-				fetchPastebin(address, io, iota, socket);
-			}	
-		} catch(e) {
-		  console.log('exception:'+e);
-		  io.to(socket.id).emit('error', e);
-		}
-	})
-	res.render('pastebin');
-});
+		console.log('client connected:' + socket.id);
 
-module.exports = router;
+		socket.on('retrieve', retrievePastebin);
+		function retrievePastebin(pastebinData)
+		{
+			try 
+			{	
+				if(shortId == null && address == null) {
+					console.log("Retrieve not possible. No pastebin-id provided.");
+					io.to(socket.id).emit('retrieveNotPossible', 'No pastebin-id provided.');
+				} else {
+				
+					if(shortId != null) {
+						console.log("find long Id of", shortId);
+						db.collection('addresses').findOne({shortid: shortId}, 'address').then((doc) => {					
+							address = doc.address;	
+							if(address != null) {
+								console.log("start fetching", address);
+								fetchPastebin(address, io, iota, socket.id, shortId);
+							}else {
+								console.log("find long Id failed...");
+								io.to(socket.id).emit('retrieveNotPossible','');
+							}    					
+						}).catch(err => {
+							console.log('exception:'+err);
+							io.to(socketId).emit('retrieveNotPossible', err.message);
+						});	
+					} else {						
+						console.log("find short ID Id of", address);
+						db.collection('addresses').findOne({address: address}, 'shortid').then((doc) => {					
+							shortId = doc.shortid;	
+							console.log("start fetching", address);
+							fetchPastebin(address, io, iota, socket.id, shortId);
+						}).catch(err => {
+							console.log('exception:'+err);
+							io.to(socketId).emit('retrieveNotPossible', err.message);
+						});
+					}									
+				}
+			} catch(e) {
+				console.log('exception:'+e);
+				io.to(socket.id).emit('retrieveNotPossible', e);		  
+			}
+		}
+
+		socket.on('disconnect', function(){		
+			try {
+			  console.log('client disconnected:' + socket.id);
+			  socket.removeListener('create', retrievePastebin);
+			} catch(err) {
+			  console.log(err);
+			}		
+		  });
+	});
+	return router;
+}
+
+module.exports = pbRouter;

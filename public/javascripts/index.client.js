@@ -27,14 +27,18 @@ $(document).ready(function() {
     });
 		
     $('#btnCreatePastebin').click(function(){
-        $('.modal').modal('show');
         console.log(syntax);
         var source = $('#txtSoure').val();
 		    var type = $("#btnRestrictionType").html();
         var passwd =  $("#pwdSidekey").val();
         var title =$('#txtTitle').val();
         console.log('create', title, source, type, passwd, syntax);
-        clientSocket.emit('create', { "title":title, "source":source, "type":type, "passwd":passwd, "syntax":syntax });
+        if(source==null || source=='') {
+          showHint("error", "ERROR", "Paste empty source isn't possible!");
+          return;
+        }
+        $('.modal').modal('show');
+        clientSocket.emit('create', { "title":title, "source":source, "type":type, "syntax":syntax });
     });
 	
 	clientSocket.on('created', function(msg)
@@ -42,11 +46,9 @@ $(document).ready(function() {
 		console.log("CREATED",msg);
 		try 
 		{
-			//$('.modal').modal('hide');
-			$('modal-content').html("/pb_" + msg.shortid);
-			
-			//var redirect ="/pb_" + msg.shortid;
-			//window.location.replace(redirect);
+			  $('.modal').modal('hide');
+			  var redirect ="/p_" + msg.shortid;
+			  window.location.replace(redirect);
 		} catch(e) {
 			console.log(e);
 			showHint('error', "ERROR", e.message);
