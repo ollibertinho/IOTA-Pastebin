@@ -17,7 +17,14 @@ function createSeed(){
 var indexRouter = function(io, iota, db) {
 
   router.get('/', function(req, res, next) {
-    res.render('index');
+    db.collection("addresses").count({}, function(error, numOfDocs){
+      if(error){
+        res.render('index',  { pasteCnt: "unknown" });
+      }else {
+        db.close();
+        res.render('index',  { pasteCnt: numOfDocs }); 
+       }     
+    });  
   });
 
   io.on('connection', function(socket)

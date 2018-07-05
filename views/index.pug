@@ -49,7 +49,7 @@ block content
                   a#sh_default.dropdown-item(href='#') Default
               .input-group-append
                 button#btnCreatePastebin.btn.btn-primary(type='button', data-toggle='tt_send', title='Create new paste.') Create
-        .row.mb-5
+        .row
           .col-md-6.box
             .bg-light.border.rounded.fix-height-165.inner-box
               h5.text-center Supported Languages
@@ -60,6 +60,13 @@ block content
               span With tangle-paste you can store anonymously and decentralized text and code-snippets on the IOTA-Tangle.
               br
               | Secure, anonymously, decentralized, independant, ...
+        .row.mb-5
+          .col-md-12.box
+            .bg-light.border.rounded.fix-height-165.inner-box
+              h5.text-center Statistics
+              span Pastebins:&nbsp;
+              span= pasteCnt
+              span &nbsp;(since july 2018)
         
 
 
