@@ -23,26 +23,24 @@ $(document).ready(function() {
 		//var connString = location.protocol+"//127.0.0.1:8082"; 
 		
 		clientSocket = io.connect(connString);  
+
 		clientSocket.on('connect', function() { 
 			console.log('connected');
 			showHint("success", "INFO", "Successfully connected...");		
 		});
 		
 		clientSocket.on('error', function(exception){
-			showHint("error", "ERROR", 'Exception:' + exception);
-			$('.modal').modal('hide');
 			console.log('exception: ' + exception);
+			showHint('error', "ERROR", exception);
     	});
 	
 		clientSocket.on('disconnect', function(){
 			console.log('disconnected');
-			$('.modal').modal('hide');
 			showHint("info", "INFO", "Disconnected...");
 		});	
 
 	} catch(e) {
 		console.log("SOCKET ERROR",e);
-		$('.modal').modal('hide');
 		showHint('error', "ERROR", e);
 	}
 

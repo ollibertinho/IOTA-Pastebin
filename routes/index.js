@@ -17,20 +17,27 @@ function createSeed(){
 var indexRouter = function(io, iota, db) {
 
   router.get('/', function(req, res, next) {
-    res.render('index');
+    db.collection("addresses").count({}, function(error, numOfDocs){
+      if(error){
+        res.render('index',  { pasteCnt: "unknown" });
+      }else {
+        db.close();
+        res.render('index',  { pasteCnt: numOfDocs }); 
+       }     
+    });  
   });
 
   io.on('connection', function(socket)
   {
     try 
     {
-      console.log('client connected:' + socket.id);
+      console.log('client connected (index):' + socket.id);
 
       socket.on('create', createPastebin);
     
       socket.on('disconnect', function(){		
         try {
-          console.log('client disconnected:' + socket.id);
+          console.log('client disconnected (index):' + socket.id);
           socket.removeListener('create', createPastebin);
         } catch(err) {
           console.log(err);
@@ -41,28 +48,49 @@ var indexRouter = function(io, iota, db) {
       {		
         console.log("Create Pastebin serverside...");
         try 
-        {			
-          var seed = createSeed();
-          var mam = new SimpleMAM.MAMLib(iota, seed, true);
-          mam.publishMessage(JSON.stringify(pastebinData), function(err, data) {
-            if (err) {
-              console.log("ERROR Publishing", err);
-              io.to(socket.id).emit('error', err.message);
-            } else {    
-                console.log("### Publishing OK!");
-                data.shortid = shortenUrl(data.root);
-                io.to(socket.id).emit('created', data);
-            }
-          });	           
+        {	
+          if(pastebinData.source=="ERROR") {
+            tryCreate();
+          }
+         
+          tryToCreate(pastebinData);
+          	           
         } catch(e){
           console.log('function createPastebin(pastebinData) exception:'+e);
           io.to(socket.id).emit('error', e.message);
         }
       }
 
-      function shortenUrl(id) {
+      function tryToCreate(pastebinData) {
+        counter = 0;
+        var secondsCnt = setInterval(function () {
+          ++counter;
+        }, 1000);
+        var seed = createSeed();
+        var mam = new SimpleMAM.MAMLib(iota, seed, true);
+        var x = mam.publishMessage(JSON.stringify(pastebinData), function(err, data) {
+          if (err) {
+              console.log("ERROR Publishing", err);
+              io.to(socket.id).emit('error', err.message);
+          } else {    
+              clearInterval(secondsCnt);
+              console.log("### Publishing OK!");
+              data.shortid = shortenUrl(data.root, counter);
+              io.to(socket.id).emit('created', data);              
+          }
+        }).then(() => {
+          console.log("X2", x);
+        })
+        .catch(err => {
+          console.log("X", err);
+        })
+        console.log("X", x);
+      }
+    
+      function shortenUrl(id, counter) {
         const urlCode = shortid.generate();
-        var doc = { "shortid":urlCode, "address":id };
+        console.log("elapsed sec.", counter);
+        var doc = { "shortid":urlCode, "address":id, "elapsed": counter };
         console.log("SHORTEN", doc);
         db.collection('addresses').insert(doc, function (err, result) {
           if (err) {

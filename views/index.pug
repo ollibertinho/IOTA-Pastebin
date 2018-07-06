@@ -4,21 +4,19 @@ block scripts
     script(src="javascripts/index.client.js")
 
 block content
-    .maincontent
-      div#loaderWindow.modal.fade.bd-example-modal-lg(data-backdrop="static" data-keyboard="false" tabindex="-1")
-        .modal-dialog.modal-sm.text-center
-          .modal-content.m-2.p-3.text-center(style="width: 350px;color:#000;background-color:#ddd" align="center")
-            div#loader.loader(style="margin-left:140px;")
-            |Please wait while we attach your pastebin to the tangle... 
-            // br
-            // button#btnCloseLoaderPastebin.btn.btn-primary(type='button', data-toggle='tt_cancel', title='Cancel.') Close
+    .maincontent     
       .container
         .row.text-center
           .col-md-12
             h2.mt-5 IOTA Pastebin
             p.lead Paste your code snippets securely on the IOTA-Tangle.
-        .row
+        .row.text-center
           .col-md-12
+            #loader(align='center')
+              .loader
+              | Please wait while we attach your pastebin to the tangle...
+        .row
+          .col-md-12           
             .input-group
               textarea#txtSoure.form-control(rows='15' maxlength='5000')
         .row.pt-2.pb-5
@@ -53,7 +51,7 @@ block content
           .col-md-12.box
             .bg-light.border.rounded.fix-height-165.inner-box
               h5.text-center Attach to Tangle (Pow)
-              span We're using our own node for pow, so please be patient while submitting. This can take up to ~60 seconds. In future we will upgrade our server or switch to field.
+              span We're using our own node for pow, so please be patient while submitting. This can take up to ~120 seconds. In future we will upgrade our server or switch to field.
           .col-md-6.box
             .bg-light.border.rounded.fix-height-165.inner-box
               h5.text-center Supported Languages
@@ -64,6 +62,13 @@ block content
               span With tangle-paste you can store anonymously and decentralized text and code-snippets on the IOTA-Tangle.
               br
               | Secure, anonymously, decentralized, independant, ...
+        .row.mb-5
+          .col-md-12.box
+            .bg-light.border.rounded.fix-height-165.inner-box
+              h5.text-center Statistics
+              span Pastebins:&nbsp;
+              span= pasteCnt
+              span &nbsp;(since july 2018)
         
 
 

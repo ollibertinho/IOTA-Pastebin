@@ -4,7 +4,8 @@ $(document).ready(function() {
     var syntax = null;
 
     $("#pwdSidekey").hide();
-
+    hideLoader();
+    
     $("#setrestricted").click(function() {
       isRestricted=true;
       $("#pwdSidekey").show();
@@ -27,6 +28,8 @@ $(document).ready(function() {
     });
 		
     $('#btnCreatePastebin').click(function(){
+      try 
+      {
         console.log(syntax);
         var source = $('#txtSoure').val();
 		    var type = $("#btnRestrictionType").html();
@@ -37,21 +40,51 @@ $(document).ready(function() {
           showHint("error", "ERROR", "Paste empty source isn't possible!");
           return;
         }
-        $('.modal').modal('show');
+        showLoader();
         clientSocket.emit('create', { "title":title, "source":source, "type":type, "syntax":syntax });
+      } catch(e) {
+        console.log(e);
+        showHint('error', "ERROR", e.message);
+        hideLoader();
+      }
     });
-	
-	clientSocket.on('created', function(msg)
-	{
-		console.log("CREATED",msg);
-		try 
-		{
-			  $('.modal').modal('hide');
-			  var redirect ="/p_" + msg.shortid;
-			  window.location.replace(redirect);
-		} catch(e) {
-			console.log(e);
-			showHint('error', "ERROR", e.message);
-		}
-	});
+
+    clientSocket.on('created', function(msg)
+    {
+      console.log("CREATED",msg);
+      try 
+      {
+          hideLoader();
+          var redirect ="/p_" + msg.shortid;
+          window.location.replace(redirect);
+      } catch(e) {
+        console.log(e);
+        showHint('error', "ERROR", e.message);
+        hideLoader();
+      }
+    });
+    
+    clientSocket.on('error', function(exception){
+      hideLoader();
+    });
+
+    function showLoader() {
+      $('#loader').show();
+      $('#txtSoure').prop('disabled', true);
+      $('#btnRestrictionType').prop('disabled', true);
+      $('#txtTitle').prop('disabled', true);
+      $('#pwdSidekey').prop('disabled', true);
+      $('#btnSyntaxhighlightType').prop('disabled', true);
+      $('#btnCreatePastebin').prop('disabled', true);
+    }
+
+    function hideLoader() {
+      $('#loader').hide();
+      $('#txtSoure').prop('disabled', false);
+      $('#btnRestrictionType').prop('disabled', false);
+      $('#txtTitle').prop('disabled', false);
+      $('#pwdSidekey').prop('disabled', false);
+      $('#btnSyntaxhighlightType').prop('disabled', false);
+      $('#btnCreatePastebin').prop('disabled', false);
+    }
 });

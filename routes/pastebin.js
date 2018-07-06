@@ -46,7 +46,7 @@ var pbRouter = function(io, iota, db) {
 
 	io.on('connection', function(socket)
 	{
-		console.log('client connected:' + socket.id);
+		console.log('client connected (pastebin):' + socket.id);
 
 		socket.on('retrieve', retrievePastebin);
 		function retrievePastebin(pastebinData)
@@ -93,7 +93,7 @@ var pbRouter = function(io, iota, db) {
 
 		socket.on('disconnect', function(){		
 			try {
-			  console.log('client disconnected:' + socket.id);
+			  console.log('client disconnected (pastebin):' + socket.id);
 			  socket.removeListener('create', retrievePastebin);
 			} catch(err) {
 			  console.log(err);
