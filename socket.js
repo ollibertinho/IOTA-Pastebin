@@ -14,7 +14,7 @@ var ioServer = function(db, iota) {
         socket.on('disconnect', function(){		
             try {
               console.log('client disconnected ' + socket.id);
-              socket.removeListener('create', retrievePastebin);
+              socket.removeListener('create', createPastebin);
               socket.removeListener('retrieve', retrievePastebin);
             } catch(err) {
               console.log(err);
@@ -88,7 +88,7 @@ var ioServer = function(db, iota) {
 
         function retrievePastebin(pastebinData) {
             try 
-            {	
+            {	console.log("retrieve XY", pastebinData);
                 if(shortId == null && address == null) {
                     console.log("Retrieve not possible. No pastebin-id provided.");
                     io.to(socket.id).emit('retrieveNotPossible', 'No Pastebin-ID provided.');
@@ -116,10 +116,15 @@ var ioServer = function(db, iota) {
                         });	
                     } else {						
                         console.log("find short ID Id of", address);
-                        db.collection('addresses').findOne({address: address}, 'shortid').then((doc) => {					
-                            shortId = doc.shortid;	
-                            console.log("start fetching", address);
-                            fetchPastebin(address, io, iota, socket.id, shortId);
+                        db.collection('addresses').findOne({address: address}, 'shortid').then((doc) => {
+                            try {			
+                                shortId = doc.shortid;	
+                                console.log("start fetching", address);
+                                fetchPastebin(address, io, iota, socket.id, shortId);
+                            } catch(err) {
+                                console.log('exception:' + err);
+                                io.to(socket.id).emit('retrieveNotPossible', err.message);		  
+                            }
                         }).catch(err => {
                             console.log('exception:'+err);
                             io.to(socketId).emit('retrieveNotPossible', err.message);
