@@ -86,9 +86,9 @@ var ioServer = function(db, iota) {
           return urlCode;   
         }
 
-        function retrievePastebin(pastebinData) {
+        function retrievePastebin() {
             try 
-            {	console.log("retrieve XY", pastebinData);
+            {	
                 if(shortId == null && address == null) {
                     console.log("Retrieve not possible. No pastebin-id provided.");
                     io.to(socket.id).emit('retrieveNotPossible', 'No Pastebin-ID provided.');

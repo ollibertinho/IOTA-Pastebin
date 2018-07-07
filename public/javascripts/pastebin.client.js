@@ -74,5 +74,5 @@ $(document).ready(function() {
 	$('#loader').show();
 	$('#bincontainer').hide();
 	console.log("retrieve...");
-	clientSocket.emit('retrieve', { });
+	clientSocket.emit('retrieve');
 });
