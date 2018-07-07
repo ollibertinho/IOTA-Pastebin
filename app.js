@@ -7,43 +7,43 @@ var fs = require('fs');
 var subdomain = require('express-subdomain');
 var http = require('http');
 var https = require('https');
-var ioServer = require('socket.io');
 var IOTA = require('iota.lib.js');
+var myio = require('./socket');
 var monk = require('monk');
-var db = monk('localhost:27017/pastebin');
-
-//var iota = new IOTA({ provider: 'http://localhost:14265' })	
-var iota = new IOTA({ provider: 'https://field.carriota.com:443' });
-
 var app = express();
 
+// ### Configuration BEGIN
+
+// Serverports
 var port = 8082;
 var portSSL = 8444;
 
+// Node-Configuration
+//var iota = new IOTA({ provider: 'http://localhost:14265' })	
+var iota = new IOTA({ provider: 'https://field.carriota.com:443' });
+
+// Database-Configuration
+var db = monk('localhost:27017/pastebin');
+
+// SSL-Configuration
 const options = {
-  key: fs.readFileSync("../certs/tangle.army/privkey.pem"),
-  cert: fs.readFileSync("../certs/tangle.army/fullchain.pem"),
+  //key: fs.readFileSync("../certs/tangle.army/privkey.pem"),
+  //cert: fs.readFileSync("../certs/tangle.army/fullchain.pem"),
   requestCert: false,
   rejectUnauthorized: false
 };
 
+// ### Configuration END
+
 var httpServer = http.createServer(app);
 var httpsServer = https.createServer(options, app);
 
-// Make our server accessible to our router
-app.use(function(req,res,next){
-    req.iota = iota;
-    req.io = io;
-    req.db = db;
-    next();
-});
+var pastebinSocket = myio(db,iota);
+pastebinSocket.attach(httpServer);
+pastebinSocket.attach(httpsServer);
 
-var io = new ioServer();
-io.attach(httpServer);
-io.attach(httpsServer);
-
-var indexRouter = require('./routes/index')(io, iota, db);
-var pastebinRouter = require('./routes/pastebin')(io, iota, db);
+var indexRouter = require('./routes/index')(db);
+var pastebinRouter = require('./routes/pastebin')();
 
 app.use('/', indexRouter);
 app.use('/', pastebinRouter);
