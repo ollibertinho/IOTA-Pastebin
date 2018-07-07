@@ -73,7 +73,7 @@ var ioServer = function(db, iota) {
         function shortenUrl(id, counter) {
           const urlCode = shortid.generate();
           console.log("elapsed sec.", counter);
-          var doc = { "shortid":urlCode, "address":id, "elapsed": counter };
+          var doc = { "shortid":urlCode, "address":id, "elapsed": counter, "timestamp": new Date(Date.now()).toISOString() };
           console.log("SHORTEN", doc);
           db.collection('addresses').insert(doc, function (err, result) {
             if (err) {
@@ -91,20 +91,25 @@ var ioServer = function(db, iota) {
             {	
                 if(shortId == null && address == null) {
                     console.log("Retrieve not possible. No pastebin-id provided.");
-                    io.to(socket.id).emit('retrieveNotPossible', 'No pastebin-id provided.');
+                    io.to(socket.id).emit('retrieveNotPossible', 'No Pastebin-ID provided.');
                 } else {
                 
                     if(shortId != null) {
                         console.log("find long Id of", shortId);
-                        db.collection('addresses').findOne({shortid: shortId}, 'address').then((doc) => {					
-                            address = doc.address;	
-                            if(address != null) {
-                                console.log("start fetching", address);
-                                fetchPastebin(address, io, iota, socket.id, shortId);
-                            }else {
-                                console.log("find long Id failed...");
-                                io.to(socket.id).emit('retrieveNotPossible','');
-                            }    					
+                        db.collection('addresses').findOne({shortid: shortId}, 'address').then((doc) => {	
+                            try {				
+                                address = doc.address;	
+                                if(address != null) {
+                                    console.log("start fetching", address);
+                                    fetchPastebin(address, io, iota, socket.id, shortId);
+                                }else {
+                                    console.log("find long Id failed...");
+                                    io.to(socket.id).emit('retrieveNotPossible', 'Unknown-ID.');
+                                }
+                            } catch(err) {
+                                console.log('exception:' + err);
+                                io.to(socket.id).emit('retrieveNotPossible', err.message);		  
+                            }
                         }).catch(err => {
                             console.log('exception:'+err);
                             io.to(socketId).emit('retrieveNotPossible', err.message);
@@ -121,9 +126,9 @@ var ioServer = function(db, iota) {
                         });
                     }									
                 }
-            } catch(e) {
-                console.log('exception:'+e);
-                io.to(socket.id).emit('retrieveNotPossible', e);		  
+            } catch(err) {
+                console.log('exception:'+err);
+                io.to(socket.id).emit('retrieveNotPossible', err.message);		  
             }
         }
 
@@ -138,17 +143,17 @@ var ioServer = function(db, iota) {
                         jsonObj.address = address;
                         console.log("RETRIEVED");
                         io.to(socketId).emit('retrieved', jsonObj);
-                    } catch(e) {
-                    console.log('exception:'+e);
-                    io.to(socketId).emit('retrieveNotPossible', e);
+                    } catch(err) {
+                    console.log('exception:'+err);
+                    io.to(socketId).emit('retrieveNotPossible', err.message);
                     }
                 }).catch(err => {
                     console.log('exception:'+err);
                     io.to(socketId).emit('retrieveNotPossible', err.message);
                 });		
-            } catch(e){
-            console.log('exception:'+e);
-            io.to(socketId).emit('retrieveNotPossible', e);
+            } catch(err){
+                console.log('exception:'+err);
+                io.to(socketId).emit('retrieveNotPossible', err.message);
             }	
         }
     });

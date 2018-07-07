@@ -27,8 +27,8 @@ var db = monk('localhost:27017/pastebin');
 
 // SSL-Configuration
 const options = {
-  key: fs.readFileSync("../certs/tangle.army/privkey.pem"),
-  cert: fs.readFileSync("../certs/tangle.army/fullchain.pem"),
+  //key: fs.readFileSync("../certs/tangle.army/privkey.pem"),
+  //cert: fs.readFileSync("../certs/tangle.army/fullchain.pem"),
   requestCert: false,
   rejectUnauthorized: false
 };

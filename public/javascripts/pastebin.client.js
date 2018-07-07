@@ -23,9 +23,17 @@ $(document).ready(function() {
 	clientSocket.on('retrieveNotPossible', function(msg)
 	{
 		$('#loader').hide();
-		console.log("retrieveNotPossible",msg);
-		var redirect ="/";
-		window.location.replace(redirect);
+		console.log("retrieveNotPossible", msg);
+		if(msg!=null) {
+			showHint("error", "Retrieving failed!", msg);
+			setTimeout(() => {
+				var redirect ="/";
+				window.location.replace(redirect);				
+			  }, 2500);
+		} else {
+			var redirect ="/";
+			window.location.replace(redirect);
+		}
 	});
 
 	clientSocket.on('retrieved', function(msg)
