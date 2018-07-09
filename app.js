@@ -11,6 +11,7 @@ var IOTA = require('iota.lib.js');
 var myio = require('./socket');
 var monk = require('monk');
 var app = express();
+var myDb = require('./db');
 
 // ### Configuration BEGIN
 
@@ -27,22 +28,24 @@ var db = monk('localhost:27017/pastebin');
 
 // SSL-Configuration
 const options = {
-  key: fs.readFileSync("../certs/tangle.army/privkey.pem"),
-  cert: fs.readFileSync("../certs/tangle.army/fullchain.pem"),
+  //key: fs.readFileSync("../certs/tangle.army/privkey.pem"),
+  //cert: fs.readFileSync("../certs/tangle.army/fullchain.pem"),
   requestCert: false,
   rejectUnauthorized: false
 };
 
 // ### Configuration END
 
+var mongo = new myDb.PasteDB(db);
+
 var httpServer = http.createServer(app);
 var httpsServer = https.createServer(options, app);
 
-var pastebinSocket = myio(db,iota);
+var pastebinSocket = myio(mongo,iota);
 pastebinSocket.attach(httpServer);
 pastebinSocket.attach(httpsServer);
 
-var indexRouter = require('./routes/index')(db);
+var indexRouter = require('./routes/index')(mongo);
 var pastebinRouter = require('./routes/pastebin')();
 
 app.use('/', indexRouter);
