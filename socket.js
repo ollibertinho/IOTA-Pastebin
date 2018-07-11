@@ -71,7 +71,10 @@ var ioServer = function(mongo, iota) {
                 });
             }
           }).then(() => { })
-          .catch(err => { })
+          .catch(err => { 
+            console.log("ERROR Publishing2", err);
+            io.to(socket.id).emit('error', err.message);
+          })
         }
       
         function shortenUrl(id, counter) {
