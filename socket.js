@@ -5,9 +5,18 @@ var io = new socketIo();
 
 var ioServer = function(mongo, iota) {
 
+    var clients = [];
+
+    function deleteFromArray(array, element) {
+        position = array.indexOf(element);
+        array.splice(position, 1);
+    }
+
     io.on('connection', function(socket) {
        
         console.log('client connected:' + socket.id);
+
+        clients.push(socket.id);
 
         socket.on('create', createPastebin);
         socket.on('retrieve', retrievePastebin);
@@ -17,6 +26,7 @@ var ioServer = function(mongo, iota) {
               console.log('client disconnected ' + socket.id);
               socket.removeListener('create', createPastebin);
               socket.removeListener('retrieve', retrievePastebin);
+              deleteFromArray(clients, socket.id);
             } catch(err) {
               console.log(err);
             }		
@@ -26,11 +36,10 @@ var ioServer = function(mongo, iota) {
             console.log("Create Pastebin serverside...");
             try 
             {	
-            if(pastebinData.source == "ERROR") {
-                tryCreate();
-            }
-            
-            tryToCreate(pastebinData);
+                if(pastebinData.source == "ERROR") {
+                    tryCreate();
+                }                
+                tryToCreate(pastebinData);
                             
             } catch(e){
                 console.log('function createPastebin(pastebinData) exception:'+e);
@@ -58,20 +67,32 @@ var ioServer = function(mongo, iota) {
           var seed = createSeed();
           var mam = new SimpleMAM.MAMLib(iota, seed, true);
           var x = mam.publishMessage(JSON.stringify(pastebinData), function(err, data) {
-            if (err) {
+            if (err) {               
                 console.log("ERROR Publishing", err);
-                io.to(socket.id).emit('error', err.message);
+                //Workaround for misconfigured field nodes
+                //const fieldMisconfError = "Request Error";
+                //if (err.message.indexOf(fieldMisconfError) !== -1) {
+                    console.log("RETRY Publishing", socket.id);
+                    io.to(socket.id).emit('errorinfo', err.message);
+
+                    tryToCreate(pastebinData);
+                //} else {
+                //   io.to(socket.id).emit('error', err.message);
+                //}               
             } else {    
                 clearInterval(secondsCnt);
-                console.log("### Publishing OK!");
+                console.log("### Publishing OK!", data.root);
                 shortenUrl(data.root, counter).then((shortId)=>
                 {
+                    console.log("SHORTEN URL",shortId);
                     data.shortid = shortId;
                     io.to(socket.id).emit('created', data);              
                 });
             }
           }).then(() => { })
-          .catch(err => { })
+          .catch(err => {
+            io.to(socket.id).emit('error', err.message);
+           })
         }
       
         function shortenUrl(id, counter) {

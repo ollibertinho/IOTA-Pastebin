@@ -68,6 +68,10 @@ $(document).ready(function() {
       hideLoader();
     });
 
+    clientSocket.on('errorinfo', function(exception){
+        showHint("warning", "RETRY", exception);
+    });
+
     function showLoader() {
       $('#loader').show();
       $('#txtSoure').prop('disabled', true);
