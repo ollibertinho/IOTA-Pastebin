@@ -70,15 +70,15 @@ var ioServer = function(mongo, iota) {
             if (err) {               
                 console.log("ERROR Publishing", err);
                 //Workaround for misconfigured field nodes
-                //const fieldMisconfError = "Request Error";
-                //if (err.message.indexOf(fieldMisconfError) !== -1) {
+                const fieldMisconfError = "Request Error";
+                if (err.message.indexOf(fieldMisconfError) !== -1) {
                     console.log("RETRY Publishing", socket.id);
                     io.to(socket.id).emit('errorinfo', err.message);
 
                     tryToCreate(pastebinData);
-                //} else {
-                //   io.to(socket.id).emit('error', err.message);
-                //}               
+                } else {
+                   io.to(socket.id).emit('error', err.message);
+                }               
             } else {    
                 clearInterval(secondsCnt);
                 console.log("### Publishing OK!", data.root);
