@@ -11,6 +11,10 @@ var ioServer = function(mongo, iota) {
         position = array.indexOf(element);
         array.splice(position, 1);
     }
+    
+    function isInArray(array, value) {
+        return array.indexOf(value) > -1;
+    }
 
     io.on('connection', function(socket) {
        
@@ -72,10 +76,14 @@ var ioServer = function(mongo, iota) {
                 //Workaround for misconfigured field nodes
                 const fieldMisconfError = "Request Error";
                 if (err.message.indexOf(fieldMisconfError) !== -1) {
-                    console.log("RETRY Publishing", socket.id);
-                    io.to(socket.id).emit('errorinfo', err.message);
-
-                    tryToCreate(pastebinData);
+                    console.log("RETRY");
+                    if(isInArray(clients, socket.id)) {
+                        console.log("Do the RETRY fpr client", socket.id);
+                        io.to(socket.id).emit('errorinfo', err.message);
+                        tryToCreate(pastebinData);
+                    } else {
+                        console.log("RETRY Canceled, client disappeared...", socket.id);
+                    }
                 } else {
                    io.to(socket.id).emit('error', err.message);
                 }               
