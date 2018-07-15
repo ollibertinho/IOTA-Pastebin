@@ -18,6 +18,16 @@ function PasteDB(monkDb) {
           });
     }
 
+    this.countPastebinsTotal = function() {
+        return monkDb.collection('addresses').count();
+    }
+
+    this.countPastebinsToday = function() {
+        var dt = new  Date();
+        dt.setHours(0,0,0,0);        
+        return monkDb.collection('addresses').count( { timestamp: { $gte: dt.toISOString() } } );
+    }
+
     this.getAddressOfShortId = function(shortId) {
 
         return monkDb.collection('addresses')
