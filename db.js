@@ -3,21 +3,6 @@ function PasteDB(monkDb) {
 
     this.monkDb = monkDb;
 
-    this.countAddresses = function() {
-       return monkDb.collection("addresses")
-       .count({}, function(error, numOfDocs){
-            if(error){
-                console.log(error);
-              return null;
-            }else {
-              return numOfDocs;
-             }     
-          }).catch((err)=>{
-            console.log(err);
-            return null;
-          });
-    }
-
     this.countPastebinsTotal = function() {
         return monkDb.collection('addresses').count();
     }
@@ -25,7 +10,7 @@ function PasteDB(monkDb) {
     this.countPastebinsToday = function() {
         var dt = new  Date();
         dt.setHours(0,0,0,0);        
-        return monkDb.collection('addresses').count( { timestamp: { $gte: dt.toISOString() } } );
+        return monkDb.collection('addresses').count( { timestamp: { $gt: dt.toISOString() } } );
     }
 
     this.getAddressOfShortId = function(shortId) {
