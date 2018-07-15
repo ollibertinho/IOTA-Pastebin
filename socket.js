@@ -113,9 +113,10 @@ var ioServer = function(mongo, iota) {
             });          
         }
 
-        function retrievePastebin() {
-            console.log("RETRIEVE ADDR", address);
-            console.log("RETRIEVE SHORTID", shortId);
+        function retrievePastebin(retrieveData) {
+            console.log(retrieveData);
+            let address = retrieveData.address;
+            let shortId = retrieveData.shortId;
             try 
             {	
                 if(shortId == null && address == null) {
