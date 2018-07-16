@@ -68,7 +68,9 @@ pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }
 .fix-height-165 {
 	height: 165px;
 }
-
+.fix-height-175 {
+	height: 175px;
+}
 .fix-height-120 {
 	height: 120px;
 }
