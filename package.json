@@ -17,6 +17,7 @@
     "pug": "2.0.0-beta11",
     "shortid": "^2.2.8",
     "simplified-mam-lib": "git+https://github.com/ollibertinho/Simplified-MAM-Lib.git",
+    "socket-anti-spam": "^2.0.0",
     "socket.io": "^2.1.1",
     "toastr": "^2.1.4"
   }

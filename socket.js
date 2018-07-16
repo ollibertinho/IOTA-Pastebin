@@ -1,4 +1,5 @@
 var socketIo = require('socket.io');
+var SocketAntiSpam  = require('socket-anti-spam');
 var SimpleMAM = require('simplified-mam-lib');
 var shortid = require("shortid");
 var io = new socketIo();
@@ -16,6 +17,44 @@ var ioServer = function(mongo, iota) {
         return array.indexOf(value) > -1;
     }
 
+    const socketAntiSpam = new SocketAntiSpam({
+        banTime:            10,         // Ban time in minutes
+        kickThreshold:      15,          // User gets kicked after this many spam score
+        kickTimesBeforeBan: 1,          // User gets banned after this many kicks
+        banning:            true,       // Uses temp IP banning after kickTimesBeforeBan
+        io:                 io,         // Bind the socket.io variable       
+    })
+     
+    socketAntiSpam.event.on('ban', (socket, data) => {
+        console.log("spamming client banned", socket.id);
+    });
+
+    socketAntiSpam.event.on('authenticate', socket => {
+
+        socketAntiSpam.getBans().then((d) => {
+
+            var BreakException = {};
+            try {
+                var isBanned = false;
+                d.forEach(function(element) {
+                    if(element.ip == socket.ip) {
+                        isBanned = true;
+                        throw BreakException;
+                    }
+                });
+            } catch (e) {
+                if (e !== BreakException)
+                    throw e;
+            }
+
+            if(isBanned) {
+                console.log("BANNED",socket.ip);
+            } else {
+                console.log(d);
+            }
+        });
+    });
+
     io.on('connection', function(socket) {
        
         console.log('client connected:' + socket.id);
@@ -27,12 +66,12 @@ var ioServer = function(mongo, iota) {
     
         socket.on('disconnect', function(){		
             try {
-              console.log('client disconnected ' + socket.id);
-              socket.removeListener('create', createPastebin);
-              socket.removeListener('retrieve', retrievePastebin);
-              deleteFromArray(clients, socket.id);
+                console.log('client disconnected ' + socket.id);
+                socket.removeListener('create', createPastebin);
+                socket.removeListener('retrieve', retrievePastebin);
+                deleteFromArray(clients, socket.id);
             } catch(err) {
-              console.log(err);
+                console.log(err);
             }		
         });       
 
@@ -60,17 +99,17 @@ var ioServer = function(mongo, iota) {
             }
             return seed;
         }
-  
+    
         function tryToCreate(pastebinData) {
-          
-          counter = 0;
-          var secondsCnt = setInterval(function () {
+            
+            counter = 0;
+            var secondsCnt = setInterval(function () {
             ++counter;
-          }, 1000);
+            }, 1000);
 
-          var seed = createSeed();
-          var mam = new SimpleMAM.MAMLib(iota, seed, true);
-          var x = mam.publishMessage(JSON.stringify(pastebinData), function(err, data) {
+            var seed = createSeed();
+            var mam = new SimpleMAM.MAMLib(iota, seed, true);
+            var x = mam.publishMessage(JSON.stringify(pastebinData), function(err, data) {
             if (err) {               
                 console.log("ERROR Publishing", err);
                 //Workaround for misconfigured field nodes
@@ -85,7 +124,7 @@ var ioServer = function(mongo, iota) {
                         console.log("RETRY Canceled, client disappeared...", socket.id);
                     }
                 } else {
-                   io.to(socket.id).emit('error', err.message);
+                    io.to(socket.id).emit('error', err.message);
                 }               
             } else {    
                 clearInterval(secondsCnt);
@@ -97,12 +136,12 @@ var ioServer = function(mongo, iota) {
                     io.to(socket.id).emit('created', data);              
                 });
             }
-          }).then(() => { })
-          .catch(err => {
+            }).then(() => { })
+            .catch(err => {
             io.to(socket.id).emit('error', err.message);
-           })
+            })
         }
-      
+        
         function shortenUrl(id, counter) {
             const urlCode = shortid.generate();
             console.log("elapsed sec.", counter);
@@ -179,7 +218,7 @@ var ioServer = function(mongo, iota) {
                 console.log('exception:'+err);
                 io.to(socketId).emit('retrieveNotPossible', err.message);
             }	
-        }
+        }  
     });
     return io;
 };
