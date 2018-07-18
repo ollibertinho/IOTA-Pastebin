@@ -41,7 +41,7 @@ $(document).ready(function() {
           return;
         }
         showLoader();
-        clientSocket.emit('create', { "title":title, "source":source, "type":type, "syntax":syntax });
+        clientSocket.emit('create', { "title":title, "source":source, "type":type, "syntax":syntax, "coding":"base64" });
       } catch(e) {
         console.log(e);
         showHint('error', "ERROR", e.message);
