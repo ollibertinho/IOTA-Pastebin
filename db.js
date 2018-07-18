@@ -16,13 +16,13 @@ function PasteDB(monkDb) {
     this.getAddressOfShortId = function(shortId) {
 
         return monkDb.collection('addresses')
-            .findOne({shortid: shortId}, 'address')
+            .findOne({shortid: shortId})
             .then((doc) => {	
                 try {				
                     let address = doc.address;	
                     if(address != null) {
                         console.log('address of shortId found', address);
-                        return address;
+                        return doc;
                     }else {
                         console.log('find address failed...');
                         return null;
@@ -41,13 +41,13 @@ function PasteDB(monkDb) {
     this.getShortIdOfAddress = function(address) {
 
         return monkDb.collection('addresses')
-            .findOne({address: address}, 'shortid')
+            .findOne({address: address})
             .then((doc) => {
                 try {                
                     let shortId = doc.shortid;	
                     if(shortId != null) {
                         console.log('shortId of address found', shortId);
-                        return shortId;
+                        return doc;
                     } else {
                         console.log('find shortId failed...');
                     }

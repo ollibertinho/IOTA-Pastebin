@@ -2,6 +2,7 @@ var socketIo = require('socket.io');
 var SocketAntiSpam  = require('socket-anti-spam');
 var SimpleMAM = require('simplified-mam-lib');
 var shortid = require("shortid");
+var tools = require('./tools.js');
 var io = new socketIo();
 
 var ioServer = function(mongo, iota) {
@@ -19,7 +20,7 @@ var ioServer = function(mongo, iota) {
 
     const socketAntiSpam = new SocketAntiSpam({
         banTime:            10,         // Ban time in minutes
-        kickThreshold:      15,          // User gets kicked after this many spam score
+        kickThreshold:      15,         // User gets kicked after this many spam score
         kickTimesBeforeBan: 1,          // User gets banned after this many kicks
         banning:            true,       // Uses temp IP banning after kickTimesBeforeBan
         io:                 io,         // Bind the socket.io variable       
@@ -27,6 +28,10 @@ var ioServer = function(mongo, iota) {
      
     socketAntiSpam.event.on('ban', (socket, data) => {
         console.log("spamming client banned", socket.id);
+    });
+
+    socketAntiSpam.event.on('spamscore', (socket, data) => {
+        console.log("SPAM-SCORE", socket.id, "SCORE",data.score);
     });
 
     socketAntiSpam.event.on('authenticate', socket => {
@@ -90,16 +95,6 @@ var ioServer = function(mongo, iota) {
             }
         }
         
-        function createSeed() {
-            const seedsize = 81;
-            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ9";
-            let seed = "";
-            for (var i = 0, n = chars.length; i < seedsize; ++i) {
-                seed += chars.charAt(Math.floor(Math.random() * n));
-            }
-            return seed;
-        }
-    
         function tryToCreate(pastebinData) {
             
             counter = 0;
@@ -107,8 +102,9 @@ var ioServer = function(mongo, iota) {
             ++counter;
             }, 1000);
 
-            var seed = createSeed();
-            var mam = new SimpleMAM.MAMLib(iota, seed, true);
+            var seed = tools.createSeed();
+            var mam = new SimpleMAM.MAMLib(iota, seed, true);            
+            pastebinData.source = tools.Base64.encode(pastebinData.source);
             var x = mam.publishMessage(JSON.stringify(pastebinData), function(err, data) {
             if (err) {               
                 console.log("ERROR Publishing", err);
@@ -117,7 +113,7 @@ var ioServer = function(mongo, iota) {
                 if (err.message.indexOf(fieldMisconfError) !== -1) {
                     console.log("RETRY");
                     if(isInArray(clients, socket.id)) {
-                        console.log("Do the RETRY fpr client", socket.id);
+                        console.log("Do the RETRY for client", socket.id);
                         io.to(socket.id).emit('errorinfo', err.message);
                         tryToCreate(pastebinData);
                     } else {
@@ -145,7 +141,14 @@ var ioServer = function(mongo, iota) {
         function shortenUrl(id, counter) {
             const urlCode = shortid.generate();
             console.log("elapsed sec.", counter);
-            var doc = { "shortid":urlCode, "address":id, "elapsed": counter, "timestamp": new Date(Date.now()).toISOString() };
+                        
+            var doc = 
+            { 
+                "shortid": urlCode,
+                "address": id, 
+                "elapsed": counter,
+                "timestamp": new Date(Date.now()).toISOString(),
+            };
 
             var inserted = mongo.insert(doc);
             return inserted.then(success=>
@@ -154,7 +157,7 @@ var ioServer = function(mongo, iota) {
                     console.log('Failed to create short-url.');
                     io.to(socket.id).emit('error','Failed to create short-url.');
                 }
-            }).then(()=>
+            }).then(() =>
             { 
                 return urlCode;
             });          
@@ -185,9 +188,9 @@ var ioServer = function(mongo, iota) {
                                 fetchPastebin(address, io, iota, socket.id, sid);
                             } else {
                                 io.to(socket.id).emit('retrieveNotPossible', 'Unknown Root-Address...');		
-                            }    
+                            }
                         });
-                    }									
+                    }
                 }
             } catch(err) {
                 console.log('exception:'+err);
@@ -195,16 +198,24 @@ var ioServer = function(mongo, iota) {
             }
         }
 
-        function fetchPastebin(address, io, iota, socketId, shortId) {
+        function fetchPastebin(doc, io, iota, socketId) {
             try 
             {
-                var fetchData = new SimpleMAM.MAMFetchData(iota, address);		
+                var fetchData = new SimpleMAM.MAMFetchData(iota, doc.address);		
                 SimpleMAM.MAMLib.fetchMessages(fetchData, function(msg) {
                     try {
+
+                        console.log(doc);
                         var jsonObj = JSON.parse(msg);
-                        jsonObj.shortid = shortId;
-                        jsonObj.address = address;
+                        if(jsonObj.coding == "base64"){                            
+                            jsonObj.source = tools.Base64.decode(jsonObj.source);
+                        }
+                        jsonObj.shortid = doc.shortid;
+                        jsonObj.address = doc.address;
+                        jsonObj.timestamp = doc.timestamp;
+                
                         console.log("RETRIEVED");
+
                         io.to(socketId).emit('retrieved', jsonObj);
                     } catch(err) {
                         console.log('exception:'+err);
