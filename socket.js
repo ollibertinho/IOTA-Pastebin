@@ -214,6 +214,7 @@ var ioServer = function(mongo, iota) {
                         var jsonObj = JSON.parse(msg);
                         if(jsonObj.coding == "base64"){                            
                             jsonObj.source = tools.Base64.decode(jsonObj.source);
+                            jsonObj.title = tools.Base64.decode(jsonObj.title);
                         }
                         jsonObj.shortid = doc.shortid;
                         jsonObj.address = doc.address;
