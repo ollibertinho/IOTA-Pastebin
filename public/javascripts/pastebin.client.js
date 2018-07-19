@@ -75,10 +75,7 @@ $(document).ready(function() {
 		console.log("retrieveNotPossible", msg);
 		if(msg!=null) {
 			showHint("error", "Retrieving failed!", msg);
-			setTimeout(() => {
-				var redirect ="/";
-				window.location.replace(redirect);				
-			  }, 2500);
+			setTimeout(function() {	window.location.replace(redirect) }, 2500);
 		} else {
 			var redirect ="/";
 			window.location.replace(redirect);
