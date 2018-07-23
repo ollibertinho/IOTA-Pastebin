@@ -86,7 +86,13 @@ var ioServer = function(mongo, iota) {
             {	
                 if(pastebinData.source == "ERROR") {
                     tryCreate();
-                }                
+                }
+                
+                if(pastebinData.coding == "base64") {
+                    pastebinData.source = tools.Base64.encode(pastebinData.source);
+                    pastebinData.title = tools.Base64.encode(pastebinData.title);
+                }
+                
                 tryToCreate(pastebinData);
                             
             } catch(e){
@@ -104,11 +110,6 @@ var ioServer = function(mongo, iota) {
 
             var seed = tools.createSeed();
             var mam = new SimpleMAM.MAMLib(iota, seed, true);            
-           
-            if(pastebinData.coding == "base64") {
-                pastebinData.source = tools.Base64.encode(pastebinData.source);
-                pastebinData.title = tools.Base64.encode(pastebinData.title);
-            }
             
             var x = mam.publishMessage(JSON.stringify(pastebinData), function(err, data) {
             if (err) {               
